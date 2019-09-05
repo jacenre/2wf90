@@ -29,13 +29,21 @@ try {
     // If the next line is a newline, then we have all the data 
     // we need for the current computation between
     // currentComputationLine and i
-    if (data[i + 1] == "\r") {
+    if (i + 1 == data.length) {
+      if (currentComputationLine !== Infinity) {
+        let outputBlock = calculate(data.slice(currentComputationLine, i));
+        !!outputBlock ? output.push(outputBlock) : null;
+      }
+      break;
+    }
+    if (data[i + 1].startsWith("\r") || data[i+1].startsWith("\n")) {
       let outputBlock = calculate(data.slice(currentComputationLine, i + 1));
       !!outputBlock ? output.push(outputBlock) : null;
+      currentComputationLine = Infinity;
     }
   }
 
-  console.log(output)
+  // console.log(output)
   fs.writeFileSync('output.txt', output.join('\r'));
 
 } catch (err) {
@@ -57,8 +65,11 @@ function calculate(input) {
 
   // Let's start calculating the output
   switch (method) {
-    case 'add': 
-      data['computed-answer'] = add(data.radix, data.x, data.y);
+    case 'add':
+      data['computed-answer'] = add(parseInt(data.radix), data.x, data.y);
+      break;
+    case 'subtract':
+      data['computed-answer'] = subtract(parseInt(data.radix), data.x, data.y);
       break;
     default:
       return '';
@@ -103,20 +114,46 @@ function add(radix, x, y) {
     let first = convertHexToNumber[x[i]];
     let second = convertHexToNumber[y[i]];
     let result = first + second + carry;
-    if(result == undefined) console.log(x[i], first, y[i], second, result, carry)
-    carry = 0;
-    while (result >= radix) {
-      result = result - radix;
-      carry++;
-    }
-
+    carry = Math.floor(result / radix);
+    result = result % radix;
+    
     answer = convertNumberToHex[result] + answer;
-    if (convertNumberToHex[result] == undefined) console.log(convertNumberToHex[result], result);
   }
   
   if (carry > 0) {
     answer = convertNumberToHex[carry] + answer;
   }
+
+  return answer;
+}
+
+
+function subtract(radix, x, y) {
+  let answer = '';
+  let carry = 0;
+  
+  for (let i = x.length - 1; i >= 0; i--) {
+    let first = convertHexToNumber[x[i]];
+    let second = convertHexToNumber[y[i]];
+    let result = first - second + carry;
+    carry = Math.floor(result / radix);
+    result = ((result % radix) + radix) % radix;
+
+    answer = convertNumberToHex[result] + answer;
+  }
+  
+  // If the number becomes negative after subtraction
+  if (carry < 0) {
+    answer = answer.split('');
+    answer[answer.length - 1] = parseInt(answer[answer.length - 1]) - 1;
+    for (let i = 0; i < answer.length; i++) {
+      answer[i] = convertNumberToHex[15 - convertHexToNumber[answer[i]]];
+    }
+    answer = `-${answer.join('')}`;
+  }
+
+  // Remove leading zeroes
+  answer = answer.replace(/^0+/, '');
 
   return answer;
 }
