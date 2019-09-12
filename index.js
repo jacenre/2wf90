@@ -82,7 +82,13 @@ function calculate(input) {
         data['computed-answer'] = subtract(parseInt(data.radix), data.x, data.y);
         break;
       case 'multiply': 
-        data['computed-answer'] = multiply(parseInt(data.radix), data.x, data.y);
+        let result = multiply(parseInt(data.radix), data.x, data.y);
+        data = {
+          ...data,
+          'computed-answer': result.answer,
+          'count-add': result.countAdd,
+          'count-mul': result.countMult,
+        };
         break;
       default:
         // console.log(`Method ${method} is not supported yet, so no output.`);
@@ -175,6 +181,7 @@ function subtract(radix, x, y) {
 // Naive mutiplication algorithm
 function multiply(radix, x, y) {
   let answer = new Array(x.length + y.length - 1).fill(0);
+  let countAdd = 0, countMult = 0;
 
   // Check if the numbers are negative
   let negative = false;
@@ -191,32 +198,26 @@ function multiply(radix, x, y) {
   y = y.split("").reverse().join('');
 
   for (let i = 0; i < x.length; i++) {
+    countAdd++;
     let c = 0, t;
 
     for (let j = 0; j < y.length; j++) {
+      countAdd++;
       let first = convertHexToNumber[x[i]];
       let second = convertHexToNumber[y[j]];
-      t = convertHexToNumber[answer[i + j]] + first * second + c;
-      c = Math.floor(t/radix);
-      answer[i + j] = convertNumberToHex[t - c * radix];
-      if (c == NaN) {
-        console.log(t - c * radix);
-      }
+      t = convertHexToNumber[answer[i + j]] + first * second + c; countAdd++; countAdd++; countAdd++; countMult++;
+      c = Math.floor(t/radix); countMult++;
+      answer[i + j] = convertNumberToHex[t - c * radix]; countAdd++; countAdd++; countMult++;
     }
 
-    answer[i + y.length] = convertNumberToHex[c];
+    answer[i + y.length] = convertNumberToHex[c]; countAdd++;
   }
 
-  let k = x.length + y.length;
+  let k = x.length + y.length; countAdd++;
   if (answer[x.length + y.length - 1] == 0) {
     k--;
-  }
-
-  if (radix == 16) {
-    console.log(x);
-    console.log(y);
-    console.log(answer)
-  }
+    countAdd++;
+  } countAdd++;
 
   answer = answer.slice(0, k).reverse();
   answer = answer.join('');
@@ -224,5 +225,5 @@ function multiply(radix, x, y) {
     answer = '-' + answer;
   }
 
-  return answer;
+  return {answer, countAdd, countMult};
 }
