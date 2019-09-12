@@ -190,11 +190,6 @@ function multiply(radix, x, y) {
   x = x.split("").reverse().join('');
   y = y.split("").reverse().join('');
 
-  if (radix == 16) {
-    console.log(x);
-    console.log(y);
-  }
-
   for (let i = 0; i < x.length; i++) {
     let c = 0, t;
 
@@ -209,12 +204,18 @@ function multiply(radix, x, y) {
       }
     }
 
-    answer[i + y.length] = convertHexToNumber[c];
+    answer[i + y.length] = convertNumberToHex[c];
   }
 
   let k = x.length + y.length;
   if (answer[x.length + y.length - 1] == 0) {
     k--;
+  }
+
+  if (radix == 16) {
+    console.log(x);
+    console.log(y);
+    console.log(answer)
   }
 
   answer = answer.slice(0, k).reverse();
