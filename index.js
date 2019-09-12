@@ -43,7 +43,6 @@ try {
     }
   }
 
-  // console.log(output)
   fs.writeFileSync('output.txt', output.join('\r'));
 
 } catch (err) {
@@ -64,18 +63,33 @@ function calculate(input) {
   }
 
   // Let's start calculating the output
-  switch (method) {
-    case 'add':
-      data['computed-answer'] = add(parseInt(data.radix), data.x, data.y);
-      break;
-    case 'subtract':
-      data['computed-answer'] = subtract(parseInt(data.radix), data.x, data.y);
-      break;
-    default:
-      return '';
-      // console.log(`Method ${method} is not supported.`);
-      break;
+
+  if (data.m) {
+    // Modular arithmatic
+    switch (method) {
+      default:
+        return '';
+        // console.log(`Method ${method} is not supported.`);
+        break;
+    }
+  } else {
+    // Integer arithmatic
+    switch (method) {
+      case 'add':
+        data['computed-answer'] = add(parseInt(data.radix), data.x, data.y);
+        break;
+      case 'subtract':
+        data['computed-answer'] = subtract(parseInt(data.radix), data.x, data.y);
+        break;
+      case 'multiply': 
+        data['computed-answer'] = multiply(parseInt(data.radix), data.x, data.y);
+        break;
+      default:
+        // console.log(`Method ${method} is not supported yet, so no output.`);
+        return '';
+    }
   }
+  
 
   return serializeOutputBlock(data);
 }
@@ -154,6 +168,60 @@ function subtract(radix, x, y) {
 
   // Remove leading zeroes
   answer = answer.replace(/^0+/, '');
+
+  return answer;
+}
+
+// Naive mutiplication algorithm
+function multiply(radix, x, y) {
+  let answer = new Array(x.length + y.length - 1).fill(0);
+
+  // Check if the numbers are negative
+  let negative = false;
+  if (x[0] == '-') {
+    negative = !negative;
+    x = x.substring(1);
+  }
+  if (y[0] == '-') {
+    negative = !negative;
+    y = y.substring(1);
+  }
+  // Reverse the strings, so the i and j are the same as in the algoritm 1.3 decription
+  x = x.split("").reverse().join('');
+  y = y.split("").reverse().join('');
+
+  if (radix == 16) {
+    console.log(x);
+    console.log(y);
+  }
+
+  for (let i = 0; i < x.length; i++) {
+    let c = 0, t;
+
+    for (let j = 0; j < y.length; j++) {
+      let first = convertHexToNumber[x[i]];
+      let second = convertHexToNumber[y[j]];
+      t = convertHexToNumber[answer[i + j]] + first * second + c;
+      c = Math.floor(t/radix);
+      answer[i + j] = convertNumberToHex[t - c * radix];
+      if (c == NaN) {
+        console.log(t - c * radix);
+      }
+    }
+
+    answer[i + y.length] = convertHexToNumber[c];
+  }
+
+  let k = x.length + y.length;
+  if (answer[x.length + y.length - 1] == 0) {
+    k--;
+  }
+
+  answer = answer.slice(0, k).reverse();
+  answer = answer.join('');
+  if (negative) {
+    answer = '-' + answer;
+  }
 
   return answer;
 }
