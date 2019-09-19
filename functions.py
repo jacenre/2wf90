@@ -345,3 +345,10 @@ def division_without_rest(x, y, radix):
     else:
         c = numberToHex(str(c))
     return c
+
+
+def euclid(x, y, radix):
+    pass
+
+def karatsuba(x, y, radix):
+    pass
