@@ -1,4 +1,11 @@
-from AddMultSubt import add, subtract, multiply
+from AddMultSubt import add, subtract, multiply, hexToNumber, numberToHex
+
+
+def hexToDecimal(number):
+    n = 0
+    for i in range(len(number)):
+        n = n + 16 ** (len(number) - 1 - i) * int(hexToNumber(number[i]))
+    return n
 
 def read_write_line():
     global line
@@ -29,7 +36,13 @@ def return_answer(number):
 
 
 def modulo_add(x, y, m, radix):
-    pass
+    ans = add(x, y, radix)
+    ans = hexToDecimal(ans)
+    m = hexToDecimal(m)
+    while (ans >= m):
+        ans = ans - m
+    ans = hex(ans).split('x')[-1]
+    return str(ans)
 
 
 def modulo_subtract(x, y, m, radix):
@@ -52,6 +65,9 @@ def euclid(x, y, radix):
     pass
 
 
+print(modulo_add('54311bd480c5d7f89db4', '96389ae5100438574eaf', 'c7eb8a91fbad0d1c1f03', 16))
+
+
 with open('output.txt', 'w') as output_file:
     with open('example.txt', 'r') as input_file:
         line = input_file.readline()
@@ -64,7 +80,7 @@ with open('output.txt', 'w') as output_file:
                     if words[0] == '[radix]':
                         el_radix = int(words[1])
                         output_file.write(line)
-                        print(line, end='')
+                        # print(line, end='')
                         el_m = None
                     if words[0] == '[add]':
                         el_x, el_y, el_m = read_x_y_m()

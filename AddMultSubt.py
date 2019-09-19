@@ -132,13 +132,3 @@ def multiply(x, y, radix):
         answer = '-' + answer
 
     return (answer, countAdd, countMult)
-
-#fill in x, y, and radix
-x = "df9e76d113895821c567"
-y = "6a20b188675ab39e17a2"
-radix = 16
-
-z = add(x, y, radix)
-#z = subtract(x, y, radix)
-#z = multiply(x, y, radix)
-print(z)
