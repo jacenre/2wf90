@@ -1,4 +1,4 @@
-from AddMultSubt import add, subtract, multiply, hexToNumber, numberToHex
+from AddMultSubt import add, subtract, multiply, hexToNumber, numberToHex, modular_reduction, modular_inversion, division_without_rest
 
 
 def hexToDecimal(number):
@@ -46,12 +46,23 @@ def modulo_add(x, y, m, radix):
 
 
 def modulo_subtract(x, y, m, radix):
-    pass
+    ans = subtract(x, y, radix)
+    if (ans[0] == '-'):
+        ans = hexToDecimal(ans[1:])
+        ans *= -1
+        m = hexToDecimal(m)
+        while (ans < 0):
+            ans = ans + m
+    else:
+        ans = hexToDecimal(ans)
+    ans = hex(ans).split('x')[-1]
+    return str(ans)
 
 
 def modulo_multiply(x, y, m, radix):
-    pass
-
+    ans = multiply(x, y, radix)[0]
+    ans = modular_reduction(ans, m, radix)
+    return str(ans)
 
 def inverse(x, m, radix):
     pass
@@ -63,9 +74,6 @@ def reduce(x, m, radix):
 
 def euclid(x, y, radix):
     pass
-
-
-print(modulo_add('54311bd480c5d7f89db4', '96389ae5100438574eaf', 'c7eb8a91fbad0d1c1f03', 16))
 
 
 with open('output.txt', 'w') as output_file:
