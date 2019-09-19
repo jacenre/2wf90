@@ -36,6 +36,15 @@ def numberToHex(x):
         x = "f"
     return x
 
+
+def hexToDecimal(number):
+    n = 0
+    for i in range(len(number)):
+        n = n + 16 ** (len(number) - 1 - i) * int(hexToNumber(number[i]))
+    return n
+
+
+
 #function for addition
 
 
@@ -201,9 +210,38 @@ def multiply(x, y, radix):
 
     return (answer, countAdd, countMult)
 
+
+def modulo_add(x, y, m, radix):
+    ans = add(x, y, radix)
+    ans = hexToDecimal(ans)
+    m = hexToDecimal(m)
+    while (ans >= m):
+        ans = ans - m
+    ans = hex(ans).split('x')[-1]
+    return str(ans)
+
+
+def modulo_subtract(x, y, m, radix):
+    ans = subtract(x, y, radix)
+    if (ans[0] == '-'):
+        ans = hexToDecimal(ans[1:])
+        ans *= -1
+        m = hexToDecimal(m)
+        while (ans < 0):
+            ans = ans + m
+    else:
+        ans = hexToDecimal(ans)
+    ans = hex(ans).split('x')[-1]
+    return str(ans)
+
+
+def modulo_multiply(x, y, m, radix):
+    ans = multiply(x, y, radix)[0]
+    ans = modular_reduction(ans, m, radix)
+    return str(ans)
+
+
 # function for modular reduction, algorithm 2.5
-
-
 def modular_reduction(x, m, radix):
     # check if x is negative
     negative = False
