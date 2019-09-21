@@ -84,3 +84,5 @@ with open('output.txt', 'w') as output_file:
                         return_answer(karatsuba(el_x, el_y, el_radix))
 
             line = input_file.readline()
+
+        print("\033[1;37;42m The script has succesfully finished, take a look in the output.txt file! \033[0m")
