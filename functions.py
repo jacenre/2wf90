@@ -382,7 +382,14 @@ def euclid(x, y, radix):
     return x, ret1, ret2
 
 
-def karatsuba(x, y, radix):
+def remove_leading_zeros(a):
+    # if there's a leading 0 remove it unless it's the only 0
+    while a[0] == '0' and len(a) > 1:
+        a = a[1:]
+    return a
+
+
+def karatsuba(x, y, radix, countAdd = 0, countMult = 0):
     negative = False
     if x[0] == '-':
         negative = not negative
@@ -393,48 +400,91 @@ def karatsuba(x, y, radix):
     result = ''
     if negative:
         result = '-'
-    return result + compute_karatsuba(x, y, radix)
+    answer = compute_karatsuba(x, y, radix, countAdd, countMult)
+    # (result, countAdd, countMult)
+    return result + answer[0], answer[1], answer[2]
 
 
-def compute_karatsuba(x, y, radix):
-    x = remove_leading_zeros(x)  # remove leading 0's so the computation is still done equally
-    y = remove_leading_zeros(y)
+def compute_karatsuba(x, y, radix, countAdd, countMult):
+    # add leading 0's to number with smallest length
+    if max(len(x), len(y)) == len(x):
+        y = (len(x) - len(y)) * "0" + y
+    elif max(len(x), len(y)) == len(y):
+        x = (len(y) - len(x)) * "0" + x
 
     n = min(len(x), len(y))
 
     if n == 1:  # if there's just one digit, simply do the normal multiply
-        return multiply(x, y, radix)[0]
+        answer = multiply(x, y, radix)
+        countAdd = countAdd + answer[1]
+        countMult = countMult + answer[2]
+        return(answer[0], countAdd, countMult)
 
-    m = math.ceil(n / 2)
+    m = math.ceil(n / 2)  # m = n / 2 if n is even, m = n / 2 + 1 if n is odd
 
-    a = x[0:m]  # split x into the upper digits
+    trailing_zeros_y = n - m  # nr of 0's
+    countAdd += 1
+    trailing_zeros_x = trailing_zeros_y * 2  # nr of 0's
+    countMult += 1
+
+    a = x[:m]  # split x into the upper digits
     b = x[m:]  # and the lower digits
 
-    c = y[0:m]  # same for x
+    c = y[:m]  # same for y
     d = y[m:]
 
-    ac = compute_karatsuba(a, c, radix)  # recurse to find a*c
-    bd = compute_karatsuba(b, d, radix)  # recurse to find b*d
-    xsum = add(a, b, radix)
-    ysum = add(c, d, radix)
-    e = compute_karatsuba(xsum, ysum, radix)  # recurse to find (a+b)*(c+d)
+    ac = compute_karatsuba(a, c, radix, countAdd,
+                           countMult)  # recurse to find a*c
+    countAdd = ac[1]
+    countMult = ac[2]
+    ac = ac[0]
 
-    ac = remove_leading_zeros(ac)  # remove leading 0's before subtraction otherwise the subtraction function crashes
+    bd = compute_karatsuba(b, d, radix, countAdd,
+                           countMult)  # recurse to find b*d
+    countAdd = bd[1]
+    countMult = bd[2]
+    bd = bd[0]
+
+    xsum = add(a, b, radix)
+    countAdd += 1
+    ysum = add(c, d, radix)
+    countAdd += 1
+
+    # recurse to find (a+b)*(c+d)
+    e = compute_karatsuba(xsum, ysum, radix, countAdd, countMult)
+    countAdd = e[1]
+    countMult = e[2]
+    e = e[0]
+
+    ac_lead_0_nr = ac.count("0")
+    if ac.count("0") == len(ac):
+        ac_lead_0_nr -= 1
+        countAdd += 1
+    # remove leading 0's before subtraction otherwise the subtraction function crashes
+    ac = remove_leading_zeros(ac)
+
+    bd_lead_0_nr = bd.count("0")
+    if bd.count("0") == len(bd):
+        bd_lead_0_nr -= 1
+        countAdd += 1
     bd = remove_leading_zeros(bd)
 
-    e = subtract(e, ac, radix) # compute e = (a+b)*(c+d) - ac - bd
-    e = subtract(e, bd, radix)
+    e = subtract(e, ac, radix)  # compute e = (a+b)*(c+d) - ac - bd
+    countAdd += 1
 
-    ac = ac + '0' * (m * 2)
-    e = e + '0' * m
+    e = subtract(e, bd, radix)
+    countAdd += 1
+    if len(e) < max(ac_lead_0_nr, bd_lead_0_nr):
+        e = "0" * max(ac_lead_0_nr, bd_lead_0_nr) + e
+
+    ac = ac + '0' * trailing_zeros_x
+    e = e + '0' * trailing_zeros_y
+
     result = add(ac, e, radix)
+    countAdd += 1
+
     result = add(result, bd, radix)
+    countAdd += 1
 
     result = remove_leading_zeros(result)
-    return result
-
-
-def remove_leading_zeros(a):
-    while a[0] == '0' and len(a) > 1:  # if there's a leading 0 remove it unless it's the only 0
-        a = a[1:]
-    return a
+    return (result, countAdd, countMult)

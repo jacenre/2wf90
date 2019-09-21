@@ -81,7 +81,8 @@ with open('output.txt', 'w') as output_file:
                         return_answer(euclid(el_x, el_y, el_radix))
                     if words[0] == '[karatsuba]':
                         el_x, el_y, el_m = read_x_y_m()
-                        return_answer(karatsuba(el_x, el_y, el_radix))
+                        ans, count_add, count_mult = karatsuba(el_x, el_y, el_radix)
+                        return_answer_counters(ans, count_add, count_mult)
 
             line = input_file.readline()
 
