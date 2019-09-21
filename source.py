@@ -78,9 +78,9 @@ with open('output.txt', 'w') as output_file:
                         return_answer(modular_reduction(el_x, el_m, el_radix))
                     if words[0] == '[euclid]':
                         el_x, el_y, el_m = read_x_y_m()
-                        euclid(el_x, el_y, el_radix)
+                        return_answer(euclid(el_x, el_y, el_radix))
                     if words[0] == '[karatsuba]':
                         el_x, el_y, el_m = read_x_y_m()
-                        karatsuba(el_x, el_y, el_radix)
+                        return_answer(karatsuba(el_x, el_y, el_radix))
 
             line = input_file.readline()

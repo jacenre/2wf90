@@ -211,28 +211,24 @@ def multiply(x, y, radix):
     return (answer, countAdd, countMult)
 
 
+# function for modular addition, algorithm 2.7
 def modulo_add(x, y, m, radix):
-    ans = add(x, y, radix)
-    ans = hexToDecimal(ans)
-    m = hexToDecimal(m)
-    while (ans >= m):
-        ans = ans - m
-    ans = hex(ans).split('x')[-1]
-    return str(ans)
-
-
-def modulo_subtract(x, y, m, radix):
-    ans = subtract(x, y, radix)
-    if (ans[0] == '-'):
-        ans = hexToDecimal(ans[1:])
-        ans *= -1
-        m = hexToDecimal(m)
-        while (ans < 0):
-            ans = ans + m
+    z_prime = add(x, y, radix)                      # z' = x + y
+    if subtract(m, z_prime, radix)[0] != "-":       # if z' < m then m - z' is not negative
+        z = z_prime                                 # z = z'
     else:
-        ans = hexToDecimal(ans)
-    ans = hex(ans).split('x')[-1]
-    return str(ans)
+        z = subtract(z_prime, m, radix)             # z = z' - m
+    return z
+
+# function for modular subtraction, algorithm 2.8
+def modulo_subtract(x, y, m, radix):
+    z_prime = subtract(x, y, radix)                 # z' = x + y
+    if z_prime[0] != "-":                           # if z' >= 0, i.e. z' is not negative
+        z = z_prime                                 # z = z'
+    else:
+        z = add(z_prime, m, radix)             # z = z' + m
+    return z
+
 
 
 def modulo_multiply(x, y, m, radix):
@@ -347,8 +343,98 @@ def division_without_rest(x, y, radix):
     return c
 
 
+def abs_value(x):
+    if x[0] == '-':
+        x = x[1:]
+    return x
+
+
 def euclid(x, y, radix):
-    pass
+    a = x
+    b = y
+    x = abs_value(x)
+    y = abs_value(y)
+    x1 = '1'
+    x2 = '0'
+    y1 = '0'
+    y2 = '1'
+    radix = int(radix)
+    while y[0] != '-' and y[0] != '0':
+        q = division_without_rest(x, y, radix)
+        r = subtract(x, multiply(q, y, radix)[0], radix)
+        x = y
+        y = r
+        x3 = subtract(x1, multiply(q, x2, radix)[0], radix)
+        y3 = subtract(y1, multiply(q, y2, radix)[0], radix)
+        x1 = x2
+        y1 = y2
+        x2 = x3
+        y2 = y3
+    if a[0] != '-':
+        ret1 = x1
+    else:
+        ret1 = '-' + x1
+    if b[0] != '-':
+        ret2 = y1
+    else:
+        ret2 = '-' + y1
+
+    return x, ret1, ret2
+
 
 def karatsuba(x, y, radix):
-    pass
+    negative = False
+    if x[0] == '-':
+        negative = not negative
+        x = x[1:]
+    if y[0] == '-':
+        negative = not negative
+        y = y[1:]
+    result = ''
+    if negative:
+        result = '-'
+    return result + compute_karatsuba(x, y, radix)
+
+
+def compute_karatsuba(x, y, radix):
+    x = remove_leading_zeros(x)  # remove leading 0's so the computation is still done equally
+    y = remove_leading_zeros(y)
+
+    n = min(len(x), len(y))
+
+    if n == 1:  # if there's just one digit, simply do the normal multiply
+        return multiply(x, y, radix)[0]
+
+    m = math.ceil(n / 2)
+
+    a = x[0:m]  # split x into the upper digits
+    b = x[m:]  # and the lower digits
+
+    c = y[0:m]  # same for x
+    d = y[m:]
+
+    ac = compute_karatsuba(a, c, radix)  # recurse to find a*c
+    bd = compute_karatsuba(b, d, radix)  # recurse to find b*d
+    xsum = add(a, b, radix)
+    ysum = add(c, d, radix)
+    e = compute_karatsuba(xsum, ysum, radix)  # recurse to find (a+b)*(c+d)
+
+    ac = remove_leading_zeros(ac)  # remove leading 0's before subtraction otherwise the subtraction function crashes
+    bd = remove_leading_zeros(bd)
+
+    e = subtract(e, ac, radix) # compute e = (a+b)*(c+d) - ac - bd
+    e = subtract(e, bd, radix)
+
+    ac = ac + '0' * (m * 2)
+    e = e + '0' * m
+    result = add(ac, e, radix)
+    result = add(result, bd, radix)
+
+    result = remove_leading_zeros(result)
+    return result
+
+
+def remove_leading_zeros(a):
+    while a[0] == '0' and len(a) > 1:  # if there's a leading 0 remove it unless it's the only 0
+        a = a[1:]
+    return a
