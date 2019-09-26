@@ -1,0 +1,44 @@
+[mod] 7
+[f] {1,2,6}
+[answer] X^2+2X+6
+[computed] X^2+2X+6
+
+[mod] 5
+[f] {1,2,6}
+[answer] X^2+2X+1
+[computed] X^2+2X+1
+
+[mod] 7
+[f] {1,2,0}
+[answer] X^2+2X
+[computed] X^2+2X
+
+[mod] 7
+[f] {1,2,7}
+[answer] X^2+2X
+[computed] X^2+2X
+
+[mod] 7
+[f] {0,1,2,0}
+[answer] X^2+2X
+[computed] X^2+2X
+
+[mod] 7
+[f] {-1,0,1,3}
+[answer] 6X^3+X+3
+[computed] 6X^3+X+3
+
+[mod] 7
+[f] {0,1,10,-1,0,2,3}
+[answer] X^5+3X^4+6X^3+2X+3
+[computed] X^5+3X^4+6X^3+2X+3
+
+[mod] 7
+[f] {}
+[answer] 0
+[computed] 0
+
+[mod] 7
+[f] {0,0}
+[answer] 0
+[computed] 0
