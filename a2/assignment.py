@@ -12,9 +12,15 @@ def compute(input):
     method = getMethod(data)
 
     if method == 'display-poly':
-        data['answer'] = display_poly(data['mod'], data['f'])
+        ans = display_poly(data['mod'], data['f'])
+    elif method == 'add-poly':
+        ans = display_poly(data['mod'], add_poly(data['mod'], data['f'], data['g']))
+    elif method == 'subtract-poly':
+        ans = display_poly(data['mod'], subtract_poly(data['mod'], data['f'], data['g']))
     else:
         return None
+    
+    data['computed'] = ans
 
     return parseOutput(data)
 

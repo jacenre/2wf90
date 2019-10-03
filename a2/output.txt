@@ -42,3 +42,15 @@
 [f] {0,0}
 [answer] 0
 [computed] 0
+
+[mod] 7
+[f] {5,2,3}
+[g] {2,3,4,0}
+[answer] 2X^3+X^2+6X+3
+[computed] 2X^3+X^2+6X+3
+
+[mod] 7
+[f] {1,2,3}
+[g] {2,3,4,0}
+[answer] 5X^3+5X^2+5X+3
+[computed] 5X^3+5X^2+5X+3

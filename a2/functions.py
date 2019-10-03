@@ -1,5 +1,12 @@
 import math, re
 
+#
+#
+#
+#   ASSIGNMENT 1
+#
+#
+#
 
 def parseInput(input):
   data = {}
@@ -525,28 +532,68 @@ def compute_karatsuba(x, y, radix, countAdd, countMult):
 
     return (result, countAdd, countMult)
 
-def display_poly(mod, f):
-  poly = f[1:len(f)-1].split(',')  
-  output = []
-  for i in range(len(poly)):
-    power = len(poly) - i - 1
-    n = modular_reduction(poly[i] if poly[i] != '' else '0', mod, 10)
-    if poly[i] and int(n) != 0:
-      if power == 0:
-        output.append(n)
-        continue
-      if power == 1:
-        output.append((n if int(n) != 1 else '') + 'X')
-        continue
-      output.append((n if int(n) != 1 else '') + 'X^%s' % (power))
 
-  
-  # If it is only a constant polynomial
-  if len(output) <= 1:
-    if len(output) == 0 or output[0] == '':
-      return 0
-    else:
-      return output[0]
-  
-  # Else
-  return '+'.join(output)
+# 
+#
+# 
+#   ASSIGNMENT 2
+# 
+# 
+#
+
+
+# Parse string {1,2,3} into array [1,2,3]
+def polyToArray(poly):
+    return poly[1:len(poly)-1].split(',')
+
+# Parse array [1,2,3] into string {1,2,3}
+def arrayToPoly(arr):
+    return '{%s}' % (','.join(arr))
+
+def display_poly(mod, f):
+    poly = polyToArray(f)
+    output = []
+    for i in range(len(poly)):
+        power = len(poly) - i - 1
+        n = modular_reduction(poly[i] if poly[i] != '' else '0', mod, 10)
+        if poly[i] and int(n) != 0:
+            if power == 0:
+                output.append(n)
+                continue
+            if power == 1:
+                output.append((n if int(n) != 1 else '') + 'X')
+                continue
+            output.append((n if int(n) != 1 else '') + 'X^%s' % (power))
+
+    # If it is only a constant polynomial
+    if len(output) <= 1:
+        if len(output) == 0 or output[0] == '':
+            return 0
+        else:
+            return output[0]
+
+    # Else
+    return '+'.join(output)
+
+
+def add_poly(mod, f, g):
+    f = polyToArray(f)
+    g = polyToArray(g)
+    while (len(g) > len(f)):
+        f = ['0'] + f
+    while (len(f) > len(g)):
+        g = ['0'] + g
+    for i in range(len(f)):
+        f[i] = modulo_add(f[i], g[i], mod, 10)
+    return arrayToPoly(f)
+
+def subtract_poly(mod, f, g):
+    f = polyToArray(f)
+    g = polyToArray(g)
+    while (len(g) > len(f)):
+        f = ['0'] + f
+    while (len(f) > len(g)):
+        g = ['0'] + g
+    for i in range(len(f)):
+        f[i] = modulo_subtract(f[i], g[i], mod, 10)
+    return arrayToPoly(f)
