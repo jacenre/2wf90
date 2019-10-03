@@ -550,10 +550,21 @@ def polyToArray(poly):
 def arrayToPoly(arr):
     return '{%s}' % (','.join(arr))
 
-def reverse(a):
-    a = list(a)
-    a.reverse()
-    return ''.join(a)
+# Find the degree of a polynomial array from low to high power
+# ['1', '2', '0] = 2X + 1 has degree 1
+def degree(poly):
+    while (len(poly) > 0 and int(poly[-1]) == 0):
+        del poly[-1]
+    return len(poly) - 1
+
+# Get the leading coefficient of a polynomial array from low to high
+# ['1', '2', '0] = 2X + 1 has lc 2
+def lc(poly):
+    for i in range(len(poly) -1, -1, -1):
+        if (int(poly[i]) > 0):
+            return int(poly[i])
+    return 0
+        
 
 def display_poly(mod, f):
     poly = polyToArray(f)
@@ -617,3 +628,26 @@ def multiply_poly(mod, f, g):
 
     # Reverse the answer back and return it
     return arrayToPoly(ans[::-1])
+
+def long_div_poly(mod, f, g):
+    f = polyToArray(f)
+    g = polyToArray(g)
+
+    q = ['0'] * (degree(f) + 1)
+    r = [] + f
+
+    # Calculate 1 / lc(b) beforehand
+    lc_b = modular_inversion(str(lc(g)), mod, 10)
+    if (lc_b.startswith('inverse')):
+        # Long division not possible
+        return 'ERROR', 'ERROR'
+    else:
+        lc_b = int(lc_b)
+
+    while(degree(r) >= degree(g)):
+        q[degree(r) - degree(g)] = modular_reduction(str(int(q[degree(r) - degree(g)]) + lc(r) * lc_b), mod, 10)
+        r_factor = polyToArray(multiply_poly(mod, arrayToPoly([str(lc(r) * lc_b)]), arrayToPoly(g)))
+        for i in range(len(r_factor)):
+            r[len(r) - 1 - i] = modular_reduction(str(int(r[len(r) - 1 - i]) - int(r_factor[i])), mod, 10)
+
+    return arrayToPoly(q[::-1]), arrayToPoly(r[::-1])

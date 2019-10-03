@@ -1,74 +1,96 @@
 [mod] 7
 [f] {1,2,6}
 [answer] X^2+2X+6
-[computed] X^2+2X+6
+[computed-answer] X^2+2X+6
 
 [mod] 5
 [f] {1,2,6}
 [answer] X^2+2X+1
-[computed] X^2+2X+1
+[computed-answer] X^2+2X+1
 
 [mod] 7
 [f] {1,2,0}
 [answer] X^2+2X
-[computed] X^2+2X
+[computed-answer] X^2+2X
 
 [mod] 7
 [f] {1,2,7}
 [answer] X^2+2X
-[computed] X^2+2X
+[computed-answer] X^2+2X
 
 [mod] 7
 [f] {0,1,2,0}
 [answer] X^2+2X
-[computed] X^2+2X
+[computed-answer] X^2+2X
 
 [mod] 7
 [f] {-1,0,1,3}
 [answer] 6X^3+X+3
-[computed] 6X^3+X+3
+[computed-answer] 6X^3+X+3
 
 [mod] 7
 [f] {0,1,10,-1,0,2,3}
 [answer] X^5+3X^4+6X^3+2X+3
-[computed] X^5+3X^4+6X^3+2X+3
+[computed-answer] X^5+3X^4+6X^3+2X+3
 
 [mod] 7
 [f] {}
 [answer] 0
-[computed] 0
 
 [mod] 7
 [f] {0,0}
 [answer] 0
-[computed] 0
 
 [mod] 7
 [f] {5,2,3}
 [g] {2,3,4,0}
 [answer] 2X^3+X^2+6X+3
-[computed] 2X^3+X^2+6X+3
+[computed-answer] 2X^3+X^2+6X+3
 
 [mod] 7
 [f] {1,2,3}
 [g] {2,3,4,0}
 [answer] 5X^3+5X^2+5X+3
-[computed] 5X^3+5X^2+5X+3
+[computed-answer] 5X^3+5X^2+5X+3
 
 [mod] 7
 [f] {6}
 [g] {5}
 [answer] 2
-[computed] 2
+[computed-answer] 2
 
 [mod] 7
 [f] {27}
 [g] {33}
 [answer] 2
-[computed] 2
+[computed-answer] 2
 
 [mod] 7
 [f] {1,1,1}
 [g] {1,-1}
 [answer] X^3+6
-[computed] X^3+6
+[computed-answer] X^3+6
+
+[mod] 7
+[f] {6}
+[g] {5}
+[answ-q] 4
+[answ-r] 0
+[computed-answ-q] 4
+[computed-answ-r] 0
+
+[mod] 7
+[f] {1,1,1}
+[g] {2,-2}
+[answ-q] 4X+1
+[answ-r] 3
+[computed-answ-q] 4X+1
+[computed-answ-r] 3
+
+[mod] 7
+[f] {1,1,1}
+[g] {0}
+[answ-q] ERROR
+[answ-r] ERROR
+[computed-answ-q] ERROR
+[computed-answ-r] ERROR

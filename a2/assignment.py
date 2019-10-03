@@ -11,6 +11,7 @@ def compute(input):
     data = parseInput(input)
     method = getMethod(data)
 
+    ans = None
     if method == 'display-poly':
         ans = display_poly(data['mod'], data['f'])
     elif method == 'add-poly':
@@ -19,10 +20,15 @@ def compute(input):
         ans = display_poly(data['mod'], subtract_poly(data['mod'], data['f'], data['g']))
     elif method == 'multiply-poly':
         ans = display_poly(data['mod'], multiply_poly(data['mod'], data['f'], data['g']))
+    elif method == 'long-div-poly':
+        q, r = long_div_poly(data['mod'], data['f'], data['g'])
+        data['computed-answ-q'] = q if q.startswith('ERROR') else display_poly(data['mod'], q)
+        data['computed-answ-r'] = r if r.startswith('ERROR') else display_poly(data['mod'], r)
     else:
         return None
     
-    data['computed'] = ans
+    if ans:
+        data['computed-answer'] = ans
 
     return parseOutput(data)
 
