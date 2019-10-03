@@ -550,6 +550,11 @@ def polyToArray(poly):
 def arrayToPoly(arr):
     return '{%s}' % (','.join(arr))
 
+def reverse(a):
+    a = list(a)
+    a.reverse()
+    return ''.join(a)
+
 def display_poly(mod, f):
     poly = polyToArray(f)
     output = []
@@ -597,3 +602,18 @@ def subtract_poly(mod, f, g):
     for i in range(len(f)):
         f[i] = modulo_subtract(f[i], g[i], mod, 10)
     return arrayToPoly(f)
+
+def multiply_poly(mod, f, g):
+    # Reverse polynomials X^2+3 => [3,0,1]
+    f = polyToArray(f)[::-1]
+    g = polyToArray(g)[::-1]
+
+    ans = [0] * (len(f) + len(g) - 1)
+
+    # Multiply every factor of both polynomials
+    for i in range(len(f)):
+        for j in range(len(g)):
+            ans[i + j] = modulo_add(str(ans[i+j]), modulo_multiply(f[i], g[j], mod, 10), mod, 10)
+
+    # Reverse the answer back and return it
+    return arrayToPoly(ans[::-1])

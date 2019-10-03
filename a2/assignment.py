@@ -17,6 +17,8 @@ def compute(input):
         ans = display_poly(data['mod'], add_poly(data['mod'], data['f'], data['g']))
     elif method == 'subtract-poly':
         ans = display_poly(data['mod'], subtract_poly(data['mod'], data['f'], data['g']))
+    elif method == 'multiply-poly':
+        ans = display_poly(data['mod'], multiply_poly(data['mod'], data['f'], data['g']))
     else:
         return None
     

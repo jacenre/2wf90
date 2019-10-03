@@ -54,3 +54,21 @@
 [g] {2,3,4,0}
 [answer] 5X^3+5X^2+5X+3
 [computed] 5X^3+5X^2+5X+3
+
+[mod] 7
+[f] {6}
+[g] {5}
+[answer] 2
+[computed] 2
+
+[mod] 7
+[f] {27}
+[g] {33}
+[answer] 2
+[computed] 2
+
+[mod] 7
+[f] {1,1,1}
+[g] {1,-1}
+[answer] X^3+6
+[computed] X^3+6
