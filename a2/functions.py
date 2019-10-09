@@ -1,4 +1,4 @@
-import math, re
+import math, re, random
 
 #
 #
@@ -533,25 +533,31 @@ def compute_karatsuba(x, y, radix, countAdd, countMult):
     return (result, countAdd, countMult)
 
 
-# 
 #
-# 
+#
+#
 #   ASSIGNMENT 2
-# 
-# 
+#
+#
 #
 
+########## start polynomial arithmetic ##########
 
-# Parse string {1,2,3} into array [1,2,3]
+
+# Parse string '{1,2,3}' into array ['1','2','3']
 def polyToArray(poly):
     return poly[1:len(poly)-1].split(',')
 
-# Parse array [1,2,3] into string {1,2,3}
+# Parse array ['1','2','3'] into string '{1,2,3}'
+
+
 def arrayToPoly(arr):
     return '{%s}' % (','.join(arr))
 
 # Find the degree of a polynomial array from low to high power
 # ['1', '2', '0] = 2X + 1 has degree 1
+
+
 def degree(poly):
     while (len(poly) > 0 and int(poly[-1]) == 0):
         del poly[-1]
@@ -559,16 +565,21 @@ def degree(poly):
 
 # Get the leading coefficient of a polynomial array from low to high
 # ['1', '2', '0] = 2X + 1 has lc 2
+
+
 def lc(poly):
-    for i in range(len(poly) -1, -1, -1):
+    for i in range(len(poly) - 1, -1, -1):
         if (int(poly[i]) > 0):
             return int(poly[i])
     return 0
-        
+
+# Function for parsing string '{1,2,3}' into polynomial "X^2+2X+3"
+
 
 def display_poly(mod, f):
     poly = polyToArray(f)
     output = []
+
     for i in range(len(poly)):
         power = len(poly) - i - 1
         n = modular_reduction(poly[i] if poly[i] != '' else '0', mod, 10)
@@ -591,63 +602,352 @@ def display_poly(mod, f):
     # Else
     return '+'.join(output)
 
+# Function for adding two polynomials modulo m
+
 
 def add_poly(mod, f, g):
     f = polyToArray(f)
     g = polyToArray(g)
+
+    # add leading 0's to g or f so they are equal in length
     while (len(g) > len(f)):
         f = ['0'] + f
     while (len(f) > len(g)):
         g = ['0'] + g
+
     for i in range(len(f)):
         f[i] = modulo_add(f[i], g[i], mod, 10)
+        # additional modular reduction necessary
+        f[i] = modular_reduction(f[i], mod, 10)
+
+    # remove leading 0's
+    while f[0] == "0" and len(f) != 1:
+        f.pop(0)
+
     return arrayToPoly(f)
+
+# Function for subtracting two polynomials modulo m
+
 
 def subtract_poly(mod, f, g):
     f = polyToArray(f)
     g = polyToArray(g)
+
+    # add leading 0's to g or f so they are equal in length
     while (len(g) > len(f)):
         f = ['0'] + f
     while (len(f) > len(g)):
         g = ['0'] + g
+
     for i in range(len(f)):
         f[i] = modulo_subtract(f[i], g[i], mod, 10)
+        f[i] = modular_reduction(f[i], mod, 10)
+
+    # remove leading 0's
+    while f[0] == "0" and len(f) != 1:
+        f.pop(0)
+
     return arrayToPoly(f)
 
+# Function for multiplication of two polynomials modulo m
+
+
 def multiply_poly(mod, f, g):
+
     # Reverse polynomials X^2+3 => [3,0,1]
     f = polyToArray(f)[::-1]
     g = polyToArray(g)[::-1]
 
+    # if either f or g is 0, return 0
+    if f == "{0}" or g == "{0}":
+        return "{0}"
+
+    # initiate answer to array of size len(f)+len(g)-1
     ans = [0] * (len(f) + len(g) - 1)
 
     # Multiply every factor of both polynomials
     for i in range(len(f)):
         for j in range(len(g)):
-            ans[i + j] = modulo_add(str(ans[i+j]), modulo_multiply(f[i], g[j], mod, 10), mod, 10)
+            ans[i + j] = modulo_add(str(ans[i+j]),
+                                    modulo_multiply(f[i], g[j], mod, 10), mod, 10)
+
+    # remove leading 0's
+    while ans[len(ans)-1] == "0" and len(ans) != 1:
+        ans.pop()
+
+    # take ans modulo mod
+    for i in range(len(ans)):
+        ans[i] = modular_reduction(ans[i], mod, 10)
 
     # Reverse the answer back and return it
     return arrayToPoly(ans[::-1])
 
+# Function for long division of two polynomials modulo m
+
+
 def long_div_poly(mod, f, g):
-    f = polyToArray(f)
-    g = polyToArray(g)
 
-    q = ['0'] * (degree(f) + 1)
-    r = [] + f
+    poly_f = polyToArray(f)
+    poly_g = polyToArray(g)
 
-    # Calculate 1 / lc(b) beforehand
-    lc_b = modular_inversion(str(lc(g)), mod, 10)
-    if (lc_b.startswith('inverse')):
-        # Long division not possible
-        return 'ERROR', 'ERROR'
+    # if length of f is smaller than length of g,
+    # return quotient = 0 with f as remainder
+    if len(poly_f) < len(poly_g):
+        return ("{0}", arrayToPoly(poly_f))
+
+    # return error if g = 0, division by 0 impossible
+    if len(poly_g) == 1 and poly_g[0] == "0":
+        return("ERROR", "ERROR")
+
+    # return 0 if f = 0 -> 0/x = 0 for all x
+    if len(poly_f) == 1 and poly_f[0] == "0":
+        return("{0}", "{0}")
+
+    rem = poly_f        # remainder
+    quot = poly_g       # quotient
+
+    for i in range(len(rem)):
+        rem[i] = modular_reduction(rem[i], mod, 10)     # take remainder mod m
+    for i in range(len(quot)):
+        quot[i] = modular_reduction(quot[i], mod, 10)   # take quotient mod m
+
+    r_deg = len(rem) - 1                        # degree of remainder
+    q_deg = len(quot) - 1                       # degree of quotient
+
+    # initiate output to empty list of size of largest degree difference + 1
+    output = (r_deg - q_deg + 1)*[0]
+
+    while r_deg >= q_deg:
+        f_remain = []               # list for what's left of f after subtracting g
+        g_min = quot                # preserve original g as we change it later on
+        deg_diff = r_deg - q_deg    # recompute degree difference
+
+        # increment output at correct position
+        output[deg_diff] = output[deg_diff] + 1
+
+        while deg_diff != 0:
+            # append 0's to end of g to make g and f the same degree
+            g_min.append("0")
+            deg_diff -= 1       # change degree diff accordingly
+
+        for j in range(r_deg + 1):
+            # subtract the multiplied g from f
+            f_remain.append(modulo_subtract(rem[j], g_min[j], mod, 10))
+
+        rem = f_remain      # remainder = what remains of f after subtraction
+
+        # loop continues forever if degree difference is 0
+        # break loop if degree difference is 0 and remainder is 0
+        if deg_diff == 0 and rem == ['0']:
+            break
+
+        # remove leading 0's from remainder
+        if rem[0] == "0" and len(rem) != 1:
+            rem.pop(0)
+            r_deg = len(rem) - 1    # change degree of remainder
+
+    output = output[::-1]   # reverse output list
+    for i in range(len(output)):
+        # take output elements modulo mod
+        output[i] = output[i] % int(mod)
+    # turn output elements into strings
+    output = ''.join(str(e) for e in output)
+
+    # remove leading 0's from remainder
+    while rem[0] == "0" and len(rem) != 1:
+            rem.pop(0)
+    remainder = arrayToPoly(rem)    # turn remainder into string
+
+    if remainder == '{}':         # if remainder is empty string
+        remainder = "{0}"         # remainder = 0
+
+    # return quotient and remainder
+    return(arrayToPoly(output), remainder)
+
+# Function for Extended Euclidean Algorithm for polynomials
+
+
+def euclid_poly(mod, f, g):
+    poly_f = polyToArray(f)
+    poly_g = polyToArray(g)
+
+    x = "{1}"
+    v = "{1}"
+    y = "{0}"
+    u = "{0}"
+
+    while poly_g != ["0"]:
+        div = long_div_poly(mod, arrayToPoly(poly_f), arrayToPoly(poly_g))
+        q = div[0]      # q = quotient (f / g)
+        r = div[1]      # r = remainder (f / g)
+
+        poly_f = poly_g                         # f = g
+        poly_g = polyToArray(r)                 # g = r
+
+        x_prime = x                             # x' = x
+        y_prime = y                             # y' = y
+        x = u                                   # x = u
+        y = v                                   # y = v
+
+        qu = multiply_poly(mod, q, u)          # calculate q*u
+        u = subtract_poly(mod, x_prime,  qu)    # u = x' - q*u
+
+        qv = multiply_poly(mod, q, v)           # calculate q*v
+        v = subtract_poly(mod, y_prime,  qv)   # v = y' - q*v
+
+    # calculate the inverse of lc(f) ---> lc(f)^-1
+    inv_f = modular_inversion(poly_f[0], mod, 10)
+    ans_a = multiply_poly(mod, x, arrayToPoly(
+        inv_f.split()))     # ans_a = x * lc(f)^-1
+    ans_b = multiply_poly(mod, y, arrayToPoly(
+        inv_f.split()))     # ans_b = y * lc(f)^-1
+    xf = multiply_poly(mod, ans_a, f)                               # x*f
+    yg = multiply_poly(mod, ans_b, g)                               # y*g
+    # x*f + y*g = gcd(f,g)
+    ans_d = add_poly(mod, xf, yg)
+
+    return ans_a, ans_b, ans_d
+
+# Function for congruence modulo a polynomial
+# ---> f - g = x*h for some x, equivalently, h | f - g
+
+
+def equals_poly_mod(mod, f, g, h):
+
+    poly_f = polyToArray(f)
+    poly_g = polyToArray(g)
+    poly_h = polyToArray(h)
+
+    if poly_h == ['']:
+        poly_h = ['0']
+
+    for i in range(len(poly_f)):
+        poly_f[i] = modular_reduction(poly_f[i], mod, 10)     # take f mod m
+    for i in range(len(poly_g)):
+        poly_g[i] = modular_reduction(poly_g[i], mod, 10)     # take g mod m
+    for i in range(len(poly_h)):
+        poly_h[i] = modular_reduction(poly_h[i], mod, 10)     # take h mod m
+
+    difference = subtract_poly(mod, arrayToPoly(
+        poly_f), arrayToPoly(poly_g))     # f - g
+    divide = long_div_poly(mod, difference, arrayToPoly(
+        poly_h))                  # (f - g) / h
+
+    if divide[1] == '{0}':      # if ((f - g) / h) has 0 remainder
+        return True             # true
     else:
-        lc_b = int(lc_b)
+        return False            # if not, false
 
-    while(degree(r) >= degree(g)):
-        q[degree(r) - degree(g)] = modular_reduction(str(int(q[degree(r) - degree(g)]) + lc(r) * lc_b), mod, 10)
-        r_factor = polyToArray(multiply_poly(mod, arrayToPoly([str(lc(r) * lc_b)]), arrayToPoly(g)))
-        for i in range(len(r_factor)):
-            r[len(r) - 1 - i] = modular_reduction(str(int(r[len(r) - 1 - i]) - int(r_factor[i])), mod, 10)
+# Function for testing if a polynomial is irreducible
 
-    return arrayToPoly(q[::-1]), arrayToPoly(r[::-1])
+
+def irreducible(mod, f):
+    poly_f = polyToArray(f)
+
+    if len(poly_f) == 1:    # degree of f must be at least 1
+        return "ERROR"
+
+    for i in range(len(poly_f)):
+        poly_f[i] = modular_reduction(poly_f[i], mod, 10)     # take f mod m
+
+    degree = len(poly_f) - 1            # degree of f
+    mod_pow_deg = int(mod)**degree      # mod^(degree of f)
+
+    poly_g = []
+
+    # generate g: if f is irreducible, f divides g ->
+    # f | X^(q^n)-X where q = mod and n = degree of f
+    for i in range(mod_pow_deg, -1, -1):
+        if i == mod_pow_deg:
+            poly_g.append("1")
+        elif i == 1:
+            poly_g.append("-1")
+        else:
+            poly_g.append("0")
+
+    divide = long_div_poly(mod, arrayToPoly(
+        poly_g), arrayToPoly(poly_f))  # compute (g / f)
+
+    if divide[1] == '{0}':      # if remainder is 0, return true
+        return True
+    else:
+        return False
+
+# Function for finding an irreducible polynomial given a degree and modulus
+
+
+def find_irred(mod, deg):
+
+    if deg == "0":      # degree must be at least 1
+        return "ERROR"
+
+    f_rndm = random_poly(mod, deg)  # generate random poly
+    f = arrayToPoly(f_rndm)
+
+    while irreducible(mod, f) == False:  # while random poly is not irreducible
+        f_rndm = random_poly(mod, deg)  # generate new random poly
+        f = arrayToPoly(f_rndm)
+
+    return display_poly(mod, f)
+
+# Function generates random polynomial with degree deg and numbers from 0 to mod-1,
+# used by find_irred()
+
+
+def random_poly(mod, deg):
+    f = []
+    for i in range(int(deg)+1):
+        f.append(str(random.randint(0, int(mod)-1)))
+    if f[0] == "0":
+        f[0] = "1"
+    return f
+
+########## end polynomial arithmetic ##########
+
+
+########## start finite field arithmetic ##########
+
+def add_table(mod, mod_poly):
+    pass
+
+
+def mult_table(mod, mod_poly):
+    pass
+
+
+def display_field(mod, mod_poly, a):
+    pass
+
+
+def add_field(mod, mod_poly, a, b):
+    pass
+
+
+def subtract_field(mod, mod_poly, a, b):
+    pass
+
+
+def multiply_field(mod, mod_poly, a, b):
+    pass
+
+
+def inverse_field(mod, mod_poly, a):
+    pass
+
+
+def division_field(mod, mod_poly, a, b):
+    pass
+
+
+def equals_field(mod, mod_poly, a, b):
+    pass
+
+
+def primitive(mod, mod_poly, a):
+    pass
+
+
+def find_prim(mod, mod_poly):
+    pass
+
+########## end finite field arithmetic ##########

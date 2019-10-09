@@ -24,6 +24,17 @@ def compute(input):
         q, r = long_div_poly(data['mod'], data['f'], data['g'])
         data['computed-answ-q'] = q if q.startswith('ERROR') else display_poly(data['mod'], q)
         data['computed-answ-r'] = r if r.startswith('ERROR') else display_poly(data['mod'], r)
+    elif method == 'euclid-poly':
+        a, b, d = euclid_poly(data['mod'], data['f'], data['g'])
+        data['computed-answ-a'] = display_poly(data['mod'], a)
+        data['computed-answ-b'] = display_poly(data['mod'], b)
+        data['computed-answ-d'] = display_poly(data['mod'], d)
+    elif method == 'equals-poly-mod':
+        ans = 'TRUE' if equals_poly_mod(data['mod'], data['f'], data['g'], data['h']) else 'FALSE'
+    elif method == 'irreducible':
+        ans = 'TRUE' if irreducible(data['mod'], data['f']) else 'FALSE'
+    elif method == 'find-irred':
+        ans = find_irred(data['mod'], data['deg'])
     else:
         return None
     
